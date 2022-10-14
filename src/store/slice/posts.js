@@ -9,12 +9,13 @@ export const postsSlice = createSlice({
     name: "posts",
     initialState,
     reducers:{
-        addPost:(state, {payload}) => {
-            state.posts.push(payload)
-        },
         addPosts:(state, {payload}) => {
-            state.posts = payload
+            state.posts.unshift({ title : payload, id: Math.random() });
         },
+        deletePost: (state, { payload }) => {
+            const id = payload;
+            state.posts = state.posts.filter(item => item.id !== id);
+          },
     },
     extraReducers: (builder) => {
         builder.addMatcher(
@@ -26,6 +27,6 @@ export const postsSlice = createSlice({
     }
 })
 
-export const {addPosts} = postsSlice.actions;
+export const {addPosts, deletePost} = postsSlice.actions;
 
 export default postsSlice.reducer;
