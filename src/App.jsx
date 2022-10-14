@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useGetAllPostsQuery } from "./store/api/posts";
-import { deletePost, addPosts } from "./store/slice/posts";
+import { deletePost, addPosts, markPost } from "./store/slice/posts";
 
 function App() {
 
@@ -19,6 +19,11 @@ function App() {
         setValue("");
       };
 
+      const handleMark = (id) => {
+        dispatch(markPost(id))
+        console.log(id)
+      }
+
     const onClick = (post) => {
         dispatch(deletePost(post))
     };
@@ -27,8 +32,8 @@ function App() {
             <div className="container">
                 <div className="new-post">
                 <form onSubmit={handleSubmit}>
-                    <label>add post{' '}</label>
-                    <input type="text" className="input" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Add new post..." />
+                    <label>add todo{' '}</label>
+                    <input type="text" className="input" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Add new todo..." />
                 </form>
                 </div>
                 <div>
@@ -36,11 +41,12 @@ function App() {
                     {!!posts?.length &&
                         posts?.map((post) => {
                             return (
-                                <div key={post.id} className="post">
-                                    <h2>
+                                <div key={post.id} id={post.id} className="post">
+                                    <h2 style={{ textDecoration: post.completed ? "line-through" : "" }}>
                                         {post.title} 
                                     </h2>
-                                    <button className="btn" onClick={()=> onClick(post.id)}>
+                                    <input checked={post.completed} type={"checkbox"} variant="outline-success" onClick={() => handleMark(post.id)}/>{'   '}
+                                    <button className="btn" onClick={()=> onClick(post.id)}  disabled={!post.completed}>
                                         Delete post
                                     </button>
                                 </div>

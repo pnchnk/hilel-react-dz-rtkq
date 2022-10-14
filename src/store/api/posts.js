@@ -5,7 +5,7 @@ export const postsApi = createApi({
     baseQuery: fetchBaseQuery({baseUrl:"https://jsonplaceholder.typicode.com/"}),
     endpoints: (builder) => ({
         getAllPosts: builder.query({
-            query: () => 'posts',
+            query: () => 'todos',
             transformResponse:(response) => {
                 return response.sort((a,b)=> b.id - a.id)
             }
