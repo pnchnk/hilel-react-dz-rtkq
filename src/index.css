@@ -54,3 +54,21 @@ button[disabled]{
   background-color: #cccccc;
   color: #666666;
 }
+
+.todos__pagination {
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.todos-pagination:hover {
+  cursor: pointer ;
+}
+
+.todos-pagination--active {
+  background-color: lightgray;
+  border: 1px solid #999999;
+}
+
+

@@ -7,7 +7,7 @@ export const postsApi = createApi({
         getAllPosts: builder.query({
             query: () => 'todos',
             transformResponse:(response) => {
-                return response.sort((a,b)=> b.id - a.id)
+                return response.sort((a,b)=> a.id - b.id)
             }
         }),
     }) 

@@ -16,6 +16,7 @@ export const postsSlice = createSlice({
                 btn: true,
                 checked: false,
                 completed: false,
+                userId: 11,
             });
         },
         deletePost: (state, { payload }) => {
