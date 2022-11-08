@@ -1,7 +1,8 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import postsApi from "../api/posts";
+import { ITodosSlice } from "./type";
 
-const initialState = {
+const initialState : ITodosSlice = {
     posts: [],
 };
 
@@ -19,7 +20,7 @@ export const postsSlice = createSlice({
                 userId: 11,
             });
         },
-        deletePost: (state, { payload }) => {
+        deletePost: (state, {payload}: PayloadAction<number>) => {
             const id = payload;
             state.posts = state.posts.filter((item) => item.id !== id);
         },
@@ -27,7 +28,7 @@ export const postsSlice = createSlice({
             const id = payload;
             state.posts.forEach((el) => {
                 if (el.id === id) {
-                    el.completed = !state.posts?.completed;
+                    el.completed = !el.completed;
                     el.btn = false;
                     el.checked = true;
                 }

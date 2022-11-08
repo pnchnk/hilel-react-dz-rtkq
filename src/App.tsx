@@ -1,53 +1,56 @@
-import { useState, useEffect, useMemo } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React from "react";
+import { useState, useMemo } from "react";
+
+//components
+import TodosSort from "./components/Todos/TodosSort";
+import TodosPagination from "./components/Todos/TodosPagination";
+
+//api
 import { useGetAllPostsQuery } from "./store/api/posts";
+
+//slice
 import { deletePost, addPosts, markPost } from "./store/slice/posts";
+
+//types
+import { ITodo } from "./types";
+
+//hooks
+import { useAppSelector, useAppDispatch } from "./store/hooks";
+import useGetSortedList from './hooks/useGetSortedList'
+import useFilterTodos from "./hooks/useFilterTodos";
 
 function App() {
     useGetAllPostsQuery();
     const [value, setValue] = useState("");
-    const { posts } = useSelector((state) => state.posts);
-    const dispatch = useDispatch();
-    const [page, setPage] = useState(1);
+    const { posts } = useAppSelector(state => state.posts);
+    const dispatch =  useAppDispatch();
+    const [page, setPage] = useState<number>(1);
     const [userSort, setUserSort] = useState('all');
-    const [showCompleted, setShowCompleted] = useState(false)
+    const [showCompleted, setShowCompleted] = useState<boolean>(false)
 
-    const onSelect = (e) => {
+    const onSelect = (e : React.ChangeEvent<HTMLSelectElement>): void => {
         setUserSort(e.target.value)
         setPage(1)
     }
 
-    const sortedList = useMemo(() => {
-        const sortList = showCompleted ? posts.filter(item=> item.completed) : posts;
-        if(userSort === 'all'){
-            return sortList;
-        }
-        return sortList.filter(item => item.userId === +userSort).sort((a,b)=> a.id - b.id)
-    }, [posts, userSort, showCompleted])
+    const sortedList = useGetSortedList(showCompleted, posts, userSort)
 
-    const paginationNumbers = useMemo(() => sortedList?.length > 20 ? Math.round(sortedList.length / 20) : 1, [sortedList]);
+    const filteredTodos = useFilterTodos(page, sortedList)
 
-    const filteredTodos = useMemo(() => {
-        const start = (page - 1) * 20;
-        const end = start + 20;
-        return sortedList.slice(start, end).sort((a,b)=> a.id - b.id);
-    }, [page, sortedList ])
-
-    const userIdArr = useMemo(() => new Set(posts?.map(t => t.userId)), [posts])
+    const userIdArr: Set<number> = useMemo(() => new Set(posts?.map(t => t.userId)), [posts])
    
     //todos methods
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
         dispatch(addPosts(value));
         setValue("");
     };
 
-    const handleMark = (id) => {
+    const handleMark = (id: number) => {
         dispatch(markPost(id));
-        console.log(id);
     };
 
-    const onClick = (post) => {
+    const onClick = (post: number) => {
         dispatch(deletePost(post));
     };
 
@@ -67,12 +70,7 @@ function App() {
                     </form>
                 </div>
                 <div className="todos__sort">
-                    <select value={userSort} onChange={onSelect}>
-                        <option selected value={'all'}>All</option>
-                        {
-                            [...userIdArr]?.map(id => <option key={id} value={id}>UserId:{id}</option>)
-                        }
-                    </select>
+                    <TodosSort userIdArr={userIdArr} onSelect={onSelect} userSort={userSort}/>
                     <label>
                         <input type="checkbox" checked={showCompleted} onChange={() => setShowCompleted(!showCompleted)}/>
                         <span>Completed</span>
@@ -81,7 +79,7 @@ function App() {
                 <div>
                     {!posts?.length && <p>no posts</p>}
                     {!!posts?.length &&
-                        filteredTodos?.map((post) => {
+                        filteredTodos?.map((post : ITodo) => {
                             return (
                                 <div
                                     key={post.id}
@@ -101,7 +99,6 @@ function App() {
                                     <input
                                         checked={post.completed}
                                         type={"checkbox"}
-                                        variant="outline-success"
                                         onClick={() => handleMark(post.id)}
                                     />
                                     {"   "}
@@ -115,18 +112,7 @@ function App() {
                                 </div>
                             );
                         })}
-                    <div className="todos__pagination">
-                        {
-                        [...Array(paginationNumbers)]?.map((_, idx) => {
-                            return (
-                                <button key={idx} className={`todos-pagination ${(page === idx+ 1) && 'todos-pagination--active'}`}
-                                 onClick={() => setPage(idx + 1)}> 
-                                    <span className="todos-pagination__num">{idx + 1}</span>
-                                </button>
-                            )
-                        })
-                        }
-                    </div>
+                        <TodosPagination page={page} setPage={setPage} sortedList={sortedList}/>
                 </div>
             </div>
         </>
@@ -134,3 +120,4 @@ function App() {
 }
 
 export default App;
+
